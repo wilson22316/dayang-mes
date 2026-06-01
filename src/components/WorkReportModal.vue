@@ -133,8 +133,8 @@ import { ref, computed, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useWorkRecordsStore } from '@/stores/workRecords.js'
 
-const GLUE_ID = 'C001'
-const COAT_ID = 'C002'
+const GLUE_IDS = ['C001', 'C003', 'C004', 'C005']
+const COAT_IDS = ['C002', 'C006']
 
 const glueCoatingWorkOrders = [
     { value: 'WO-2026-G001', label: 'WO-2026-G001 產品A塗佈工單' },
@@ -164,6 +164,12 @@ const machineWorkOrders = {
         { value: 'WO-2026-P007', label: 'WO-2026-P007 產品C裁切工單' },
         { value: 'WO-2026-P008', label: 'WO-2026-P008 產品D裁切工單' },
     ],
+    P004: [
+        { value: 'WO-2026-P013', label: 'WO-2026-P013 產品E裁切工單' },
+        { value: 'WO-2026-P014', label: 'WO-2026-P014 產品F裁切工單' },
+        { value: 'WO-2026-P015', label: 'WO-2026-P015 產品G裁切工單' },
+        { value: 'WO-2026-P016', label: 'WO-2026-P016 產品H裁切工單' },
+    ],
     P003: [
         { value: 'WO-2026-P009', label: 'WO-2026-P009 產品A複捲工單' },
         { value: 'WO-2026-P010', label: 'WO-2026-P010 產品B複捲工單' },
@@ -171,22 +177,34 @@ const machineWorkOrders = {
         { value: 'WO-2026-P012', label: 'WO-2026-P012 產品D複捲工單' },
     ],
     CV001: [
-        { value: 'WO-2026-CV001', label: 'WO-2026-CV001 產品A分條工單' },
-        { value: 'WO-2026-CV002', label: 'WO-2026-CV002 產品B分條工單' },
-        { value: 'WO-2026-CV003', label: 'WO-2026-CV003 產品C分條工單' },
-        { value: 'WO-2026-CV004', label: 'WO-2026-CV004 產品D分條工單' },
+        { value: 'WO-2026-CV001', label: 'WO-2026-CV001 分條機G-01工單A' },
+        { value: 'WO-2026-CV002', label: 'WO-2026-CV002 分條機G-01工單B' },
+        { value: 'WO-2026-CV003', label: 'WO-2026-CV003 分條機G-01工單C' },
+        { value: 'WO-2026-CV004', label: 'WO-2026-CV004 分條機G-01工單D' },
+    ],
+    CV005: [
+        { value: 'WO-2026-CV017', label: 'WO-2026-CV017 分條機G-02工單A' },
+        { value: 'WO-2026-CV018', label: 'WO-2026-CV018 分條機G-02工單B' },
+        { value: 'WO-2026-CV019', label: 'WO-2026-CV019 分條機G-02工單C' },
+        { value: 'WO-2026-CV020', label: 'WO-2026-CV020 分條機G-02工單D' },
+    ],
+    CV006: [
+        { value: 'WO-2026-CV021', label: 'WO-2026-CV021 分條機G-03工單A' },
+        { value: 'WO-2026-CV022', label: 'WO-2026-CV022 分條機G-03工單B' },
+        { value: 'WO-2026-CV023', label: 'WO-2026-CV023 分條機G-03工單C' },
+        { value: 'WO-2026-CV024', label: 'WO-2026-CV024 分條機G-03工單D' },
     ],
     CV002: [
-        { value: 'WO-2026-CV005', label: 'WO-2026-CV005 產品A貼合工單' },
-        { value: 'WO-2026-CV006', label: 'WO-2026-CV006 產品B貼合工單' },
-        { value: 'WO-2026-CV007', label: 'WO-2026-CV007 產品C貼合工單' },
-        { value: 'WO-2026-CV008', label: 'WO-2026-CV008 產品D貼合工單' },
+        { value: 'WO-2026-CV005', label: 'WO-2026-CV005 貼合機1工單A' },
+        { value: 'WO-2026-CV006', label: 'WO-2026-CV006 貼合機1工單B' },
+        { value: 'WO-2026-CV007', label: 'WO-2026-CV007 貼合機1工單C' },
+        { value: 'WO-2026-CV008', label: 'WO-2026-CV008 貼合機1工單D' },
     ],
-    CV003: [
-        { value: 'WO-2026-CV009', label: 'WO-2026-CV009 產品A AOI工單' },
-        { value: 'WO-2026-CV010', label: 'WO-2026-CV010 產品B AOI工單' },
-        { value: 'WO-2026-CV011', label: 'WO-2026-CV011 產品C AOI工單' },
-        { value: 'WO-2026-CV012', label: 'WO-2026-CV012 產品D AOI工單' },
+    CV007: [
+        { value: 'WO-2026-CV025', label: 'WO-2026-CV025 貼合機2工單A' },
+        { value: 'WO-2026-CV026', label: 'WO-2026-CV026 貼合機2工單B' },
+        { value: 'WO-2026-CV027', label: 'WO-2026-CV027 貼合機2工單C' },
+        { value: 'WO-2026-CV028', label: 'WO-2026-CV028 貼合機2工單D' },
     ],
     CV004: [
         { value: 'WO-2026-CV013', label: 'WO-2026-CV013 產品A斷裁工單' },
@@ -235,8 +253,8 @@ const props = defineProps({ modelValue: Boolean, machine: Object, categoryId: St
 const emit = defineEmits(['update:modelValue'])
 const open = computed({ get: () => props.modelValue, set: (v) => emit('update:modelValue', v) })
 
-const isGlueMachine = computed(() => props.machine?.id === GLUE_ID)
-const isCoatingMachine = computed(() => props.machine?.id === COAT_ID)
+const isGlueMachine = computed(() => GLUE_IDS.includes(props.machine?.id))
+const isCoatingMachine = computed(() => COAT_IDS.includes(props.machine?.id))
 
 const machineActiveRecord = computed(() =>
     store.activeRecords.find(r => r.machineId === props.machine?.id)
@@ -299,14 +317,14 @@ const availableWOs = computed(() => {
         return [{ value: activeRec.workOrder, label: `${activeRec.workOrder} ${activeRec.workOrderName || ''}` }]
     }
     if (isGlueMachine.value) {
-        const used = new Set(store.glueCoatingRecords.filter(r => r.status !== '已完工').map(r => r.workOrder))
+        const used = new Set(store.glueCoatingRecords.map(r => r.workOrder))
         return glueCoatingWorkOrders.filter(o => !used.has(o.value))
     }
     if (isCoatingMachine.value) {
         return pendingGCForCoating.value.map(r => ({ value: r.workOrder, label: `${r.workOrder} ${r.workOrderName}` }))
     }
     const list = machineWorkOrders[props.machine?.id] ?? []
-    const used = new Set(store.activeRecords.filter(r => r.machineId === props.machine?.id).map(r => r.workOrder))
+    const used = new Set(store.records.filter(r => r.machineId === props.machine?.id).map(r => r.workOrder))
     return list.filter(o => !used.has(o.value))
 })
 

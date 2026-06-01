@@ -93,7 +93,7 @@ export const useWorkRecordsStore = defineStore('workRecords', () => {
     /* ── Actions ── */
 
     function addRecord(record) {
-        if (record.workOrder.startsWith('WO-2026-G') && record.machineId === 'C001') {
+        if (record.workOrder.startsWith('WO-2026-G')) {
             glueCoatingRecords.value.unshift({
                 workOrder: record.workOrder, workOrderName: record.workOrderName, status: '調膠中',
                 glueOperator: record.operator, glueStartTime: record.startTime,
