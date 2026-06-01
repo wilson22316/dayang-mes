@@ -1,0 +1,120 @@
+/*
+ * Design tokens matching the original shadcn/tailwind theme.
+ * oklch values converted from default_shadcn_theme.css
+ */
+
+:root {
+    /* Core palette */
+    --c-bg: #E8EEF5;
+    --c-fg: #1a1a2e;
+    --c-card: #ffffff;
+    --c-card-fg: #1a1a2e;
+    --c-primary: #2563eb;
+    --c-primary-fg: #ffffff;
+    --c-secondary: #f0f4f9;
+    --c-secondary-fg: #1a1a2e;
+    --c-muted: #f0f4f9;
+    --c-muted-fg: #6b7280;
+    --c-border: #d6e1ed;
+    --c-input: #f5f8fc;
+    --c-destructive: #dc2626;
+    --c-popover: #ffffff;
+    --c-popover-fg: #1a1a2e;
+    --c-ring: #a3a3a3;
+
+    /* Dialog and Card customization for light/dark */
+    --c-wo-bg: #EEF2F6;
+    --c-input-bg: #ffffff;
+    --c-info-bg: #f1f5f9;
+    --c-batch-bg: #f8fafc;
+    --c-dialog-bg: #ffffff;
+    --c-dialog-border: #cbd5e1;
+    --c-dialog-title: #1e293b;
+
+    /* Warning Banner colors */
+    --c-warn-bg: #e0f2fe;
+    --c-warn-border: #bae6fd;
+    --c-warn-fg: #0369a1;
+
+    /* Sidebar */
+    --c-sidebar: #ffffff;
+    --c-sidebar-fg: #64748b;
+    --c-sidebar-primary: #2563eb;
+    --c-sidebar-primary-fg: #ffffff;
+    --c-sidebar-accent: #f1f5f9;
+    --c-sidebar-border: #cbd5e1;
+
+    /* Semantic */
+    --c-green: #00c951;
+    --c-yellow: #EEB000;
+    --c-red: #ef4444;
+    --c-blue: #3b82f6;
+    --c-cyan: #06b6d4;
+    --c-orange: #f97316;
+    --c-teal: #0d9488;
+
+    /* Misc */
+    --radius: 8px;
+    --radius-lg: 12px;
+}
+
+.body--dark {
+    --c-bg: #1A2A3D;
+    --c-fg: #f1f5f9;
+    --c-card: #243447;
+    --c-card-fg: #f1f5f9;
+    --c-primary: #2563eb;
+    --c-primary-fg: #ffffff;
+    --c-secondary: #2e3f55;
+    --c-secondary-fg: #ffffff;
+    --c-muted: #2e3f55;
+    --c-muted-fg: #94a3b8;
+    --c-border: #2e3f55;
+    --c-input: #172537;
+    --c-popover: #243447;
+    --c-popover-fg: #f1f5f9;
+
+    --c-wo-bg: #29394F;
+    --c-input-bg: #172537;
+    --c-info-bg: #172537;
+    --c-batch-bg: #172537;
+    --c-dialog-bg: #243447;
+    --c-dialog-border: #2e3f55;
+    --c-dialog-title: #ffffff;
+
+    /* Warning Banner colors for dark */
+    --c-warn-bg: rgba(37, 99, 235, 0.15);
+    --c-warn-border: rgba(37, 99, 235, 0.3);
+    --c-warn-fg: #60a5fa;
+
+    --c-sidebar: #101c2b;
+    --c-sidebar-fg: #94a3b8;
+    --c-sidebar-primary: #2563eb;
+    --c-sidebar-primary-fg: #ffffff;
+    --c-sidebar-accent: #19283a;
+    --c-sidebar-border: #1a2839;
+}
+
+/* ── Global resets ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background-color: var(--c-bg) !important;
+    color: var(--c-fg);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 強制覆蓋 Quasar 的佈局與頁面背景色，使其完全遵循我們的設計系統底色 */
+.q-layout, .q-page, .q-page-container {
+    background-color: var(--c-bg) !important;
+}
+
+/* ── Utility helpers (minimal set used across components) ── */
+.text-muted { color: var(--c-muted-fg); }
+.text-card { color: var(--c-card-fg); }
+.text-destructive { color: var(--c-destructive); }
+.bg-card { background-color: var(--c-card); }
+.bg-secondary { background-color: var(--c-secondary); }
+.border-color { border-color: var(--c-border); }
