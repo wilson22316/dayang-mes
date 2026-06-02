@@ -13,7 +13,7 @@
                 <div class="device-info-card">
                     <div class="info-item">
                         <div class="info-label">報工類型</div>
-                        <div class="info-val">生產報工</div>
+                        <div class="info-val">{{ categoryNames[categoryId] || '生產報工' }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">設備名稱</div>
