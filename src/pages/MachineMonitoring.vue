@@ -92,6 +92,8 @@ const machines = {
         { id: 'F001', name: '廠務設備', location: 'F棟地下室', status: 'running', communicationStatus: 'normal' },
         { id: 'F002', name: '主鍋爐溫度', location: 'F棟1樓', status: 'running', communicationStatus: 'normal' },
         { id: 'F003', name: 'RTO PLC', location: 'F棟頂樓', status: 'running', communicationStatus: 'normal' },
+        { id: 'AQ001', name: '空氣品質1', location: 'F棟1樓', status: 'running', communicationStatus: 'normal' },
+        { id: 'AQ002', name: '空氣品質2', location: 'F棟2樓', status: 'running', communicationStatus: 'normal' },
     ],
 }
 
