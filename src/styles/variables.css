@@ -56,29 +56,41 @@
     /* Misc */
     --radius: 8px;
     --radius-lg: 12px;
+
+    /* 淋膜機與塗佈機卡片自訂變數 */
+    --c-card-border: var(--c-border);
+    --c-val-green: #16a34a;
+    --c-lam-val-bg: #f1f5f9;
+    --c-lam-val-border: #cbd5e1;
+    --c-lam-val-fg: #1e293b;
+    --c-row-border: rgba(0, 0, 0, 0.05);
+    --c-capsule-bg: rgba(0, 0, 0, 0.06);
+    --c-coat-header: var(--c-secondary);
+    --c-lam-header: rgba(0, 0, 0, 0.06);
 }
 
 .body--dark {
-    --c-bg: #1A2A3D;
+    --c-bg: #0B1E48;
     --c-fg: #f1f5f9;
-    --c-card: #243447;
+    --c-card: #2A3A68;
+    /* --c-card: #132B58; */
     --c-card-fg: #f1f5f9;
     --c-primary: #2563eb;
     --c-primary-fg: #ffffff;
-    --c-secondary: #2e3f55;
+    --c-secondary: #3A5299;
     --c-secondary-fg: #ffffff;
     --c-muted: #2e3f55;
     --c-muted-fg: #94a3b8;
     --c-border: #2e3f55;
     --c-input: #172537;
-    --c-popover: #243447;
+    --c-popover: #132B58;
     --c-popover-fg: #f1f5f9;
 
-    --c-wo-bg: #29394F;
+    --c-wo-bg: #162040;
     --c-input-bg: #172537;
     --c-info-bg: #172537;
     --c-batch-bg: #172537;
-    --c-dialog-bg: #243447;
+    --c-dialog-bg: #132B58;
     --c-dialog-border: #2e3f55;
     --c-dialog-title: #ffffff;
 
@@ -87,12 +99,23 @@
     --c-warn-border: rgba(37, 99, 235, 0.3);
     --c-warn-fg: #60a5fa;
 
-    --c-sidebar: #101c2b;
-    --c-sidebar-fg: #94a3b8;
+    --c-sidebar: #002657;
+    --c-sidebar-fg: #ffffff;
     --c-sidebar-primary: #2563eb;
     --c-sidebar-primary-fg: #ffffff;
     --c-sidebar-accent: #19283a;
     --c-sidebar-border: #1a2839;
+
+    /* 淋膜機與塗佈機卡片自訂變數 */
+    --c-card-border: #22457A;
+    --c-val-green: #00FF9A;
+    --c-lam-val-bg: #05101f;
+    --c-lam-val-border: #1a365d;
+    --c-lam-val-fg: #ffffff;
+    --c-row-border: rgba(255, 255, 255, 0.08);
+    --c-capsule-bg: #162040;
+    --c-coat-header: #162040;
+    --c-lam-header: #162040;
 }
 
 /* ── Global resets ── */
@@ -111,6 +134,13 @@ body {
     background-color: var(--c-bg) !important;
 }
 
+/* Quasar 會依 header 高度動態計算 q-page 的 min-height，
+   深色模式下 header 因字型渲染差異可能稍高幾 px 導致出現捲軸，
+   直接歸零讓頁面自然撐開即可 */
+.q-page {
+    min-height: 0 !important;
+}
+
 /* ── Utility helpers (minimal set used across components) ── */
 .text-muted { color: var(--c-muted-fg); }
 .text-card { color: var(--c-card-fg); }
@@ -118,3 +148,7 @@ body {
 .bg-card { background-color: var(--c-card); }
 .bg-secondary { background-color: var(--c-secondary); }
 .border-color { border-color: var(--c-border); }
+
+html {
+    overflow-y: auto !important;
+}

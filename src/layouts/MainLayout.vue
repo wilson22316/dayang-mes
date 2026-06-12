@@ -1,6 +1,6 @@
 <template>
-    <q-layout view="hHh lpR fFf">
-        <q-header bordered class="top-navbar">
+    <q-layout view="hHh LpR fFf">
+        <q-header class="top-navbar">
             <TheTopNavbar />
         </q-header>
 
@@ -31,6 +31,6 @@ const drawer = ref(true)
 }
 
 .body--dark .top-navbar {
-    background-color: #0f1724 !important;
+    background-color: #002657 !important;
 }
 </style>

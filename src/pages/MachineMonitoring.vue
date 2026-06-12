@@ -136,10 +136,12 @@ function enrichedMachines(categoryId) {
 .stat-content { display: flex; flex-direction: column; gap: 2px; }
 .stat-value { font-size: 20px; font-weight: 600; line-height: 1.2; display: flex; align-items: baseline; gap: 4px; }
 .stat-unit { font-size: 13px; font-weight: 400; }
-.stat-label { font-size: 12px; color: var(--c-muted-fg); }
+.stat-label { font-size: 14px; color: var(--c-muted-fg); }
 .tab-bar { background: transparent; }
-.tab-bar :deep(.q-tab) { color: var(--c-muted-fg); text-transform: none; font-size: 14px; }
+.tab-bar :deep(.q-tab) { color: var(--c-muted-fg); text-transform: none; font-size: 16px; }
 .tab-bar :deep(.q-tab--active) { color: var(--c-fg); }
+.tab-bar :deep(.q-tab__label) { font-size: 16px !important; }
+:global(.body--dark .tab-bar .q-tab:not(.q-tab--active)) { color: #ffffff !important; }
 .panels { background: transparent; }
 .machine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
 </style>
