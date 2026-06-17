@@ -36,9 +36,9 @@ function nowString() {
 
 /** @type {WorkRecord[]} */
 const initialRecords = [
-    { id: '1', workOrder: 'WO-2026-R001', workOrderName: '產品A製膠工單', machine: '製膠攪拌機', machineId: 'R001', location: 'A棟1樓', category: '製膠', operator: '張三', startTime: '2026-05-22 08:00', status: '進行中' },
-    { id: '3', workOrder: 'WO-2026-P001', workOrderName: '產品A熱切工單', machine: '熱切分條機', machineId: 'P001', location: 'C棟1樓', category: '本業加工', operator: '王五', startTime: '2026-05-22 07:15', status: '進行中' },
-    { id: '4', workOrder: 'WO-2026-CV001', workOrderName: '產品A分條工單', machine: '分條機', machineId: 'CV001', location: 'D棟1樓', category: 'COVER加工', operator: '趙六', startTime: '2026-05-22 10:00', status: '進行中' },
+    { id: '1', workOrder: 'WO-2026-R001', workOrderName: '產品A製膠工單', machine: '製膠攪拌機', machineId: 'R001', location: 'C棟1F', category: '製膠', operator: '張三', startTime: '2026-05-22 08:00', status: '進行中' },
+    { id: '3', workOrder: 'WO-2026-P001', workOrderName: '產品A熱切工單', machine: '熱切分條機', machineId: 'P001', location: 'B棟3樓', category: '本業加工', operator: '王五', startTime: '2026-05-22 07:15', status: '進行中' },
+    { id: '4', workOrder: 'WO-2026-CV001', workOrderName: '產品A分條工單', machine: '分條機', machineId: 'CV001', location: 'B棟4樓', category: 'COVER加工', operator: '趙六', startTime: '2026-05-22 10:00', status: '進行中' },
 ]
 
 /** @type {GlueCoatingRecord[]} */

@@ -44,14 +44,14 @@ const dateFrom = ref('')
 const dateTo = ref('')
 
 const alerts = [
-    { id: 1, time: '2026-05-22 14:32', machine: '複捲設備', machineId: 'P003', location: 'C棟2樓', category: '本業加工', type: '通訊異常', message: '設備通訊中斷超過10分鐘' },
-    { id: 2, time: '2026-05-22 11:15', machine: '塗佈機', machineId: 'C002', location: 'B棟1樓', category: '塗佈', type: '參數異常', message: '張力值超出正常範圍 (15.2N > 12N)' },
-    { id: 3, time: '2026-05-22 09:48', machine: '調膠溫度與啟動', machineId: 'C001', location: 'B棟1樓', category: '塗佈', type: '參數異常', message: '黏度值異常偏高 (1420cP > 1200cP)' },
-    { id: 4, time: '2026-05-21 16:20', machine: '製膠攪拌機', machineId: 'R001', location: 'A棟1樓', category: '製膠', type: '設備警報', message: '攪拌機振動值偏高' },
-    { id: 5, time: '2026-05-21 13:45', machine: '薄膜斷裁機', machineId: 'CV004', location: 'D棟2樓', category: 'COVER加工', type: '設備警報', message: '氣壓不足警報' },
-    { id: 6, time: '2026-05-21 10:30', machine: '淋膜機', machineId: 'L001', location: 'E棟1樓', category: '淋膜', type: '參數異常', message: '淋膜溫度波動過大' },
-    { id: 7, time: '2026-05-20 15:55', machine: '主鍋爐溫度', machineId: 'F002', location: 'F棟1樓', category: '廠務', type: '設備警報', message: '排煙溫度超標 (160°C > 150°C)' },
-    { id: 8, time: '2026-05-20 08:10', machine: 'RTO PLC', machineId: 'F003', location: 'F棟頂樓', category: '廠務', type: '通訊異常', message: 'PLC通訊短暫中斷' },
+    { id: 1, time: '2026-05-22 14:32', machine: '複捲設備', machineId: 'P003', location: 'B棟3樓', category: '本業加工', type: '通訊異常', message: '設備通訊中斷超過10分鐘' },
+    { id: 2, time: '2026-05-22 11:15', machine: '塗佈機', machineId: 'C002', location: 'D棟1樓', category: '塗佈', type: '參數異常', message: '張力值超出正常範圍 (15.2N > 12N)' },
+    { id: 3, time: '2026-05-22 09:48', machine: '調膠溫度與啟動', machineId: 'C001', location: 'D棟1樓', category: '塗佈', type: '參數異常', message: '黏度值異常偏高 (1420cP > 1200cP)' },
+    { id: 4, time: '2026-05-21 16:20', machine: '製膠攪拌機', machineId: 'R001', location: 'C棟1F', category: '製膠', type: '設備警報', message: '攪拌機振動值偏高' },
+    { id: 5, time: '2026-05-21 13:45', machine: '薄膜斷裁機', machineId: 'CV004', location: 'B棟4樓', category: 'COVER加工', type: '設備警報', message: '氣壓不足警報' },
+    { id: 6, time: '2026-05-21 10:30', machine: '淋膜機', machineId: 'L001', location: 'B棟1F', category: '淋膜', type: '參數異常', message: '淋膜溫度波動過大' },
+    { id: 7, time: '2026-05-20 15:55', machine: '主鍋爐溫度', machineId: 'F002', location: '-', category: '廠務', type: '設備警報', message: '排煙溫度超標 (160°C > 150°C)' },
+    { id: 8, time: '2026-05-20 08:10', machine: 'RTO PLC', machineId: 'F003', location: '-', category: '廠務', type: '通訊異常', message: 'PLC通訊短暫中斷' },
 ]
 
 const machineOptions = [...new Set(alerts.map(a => a.machine))].map(m => ({ label: m, value: m }))
