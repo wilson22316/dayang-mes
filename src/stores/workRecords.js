@@ -25,6 +25,7 @@ import { ref, computed } from 'vue'
  *   endTime?: string, status: '進行中'|'已完工'|'已刪除',
  *   glueBatchNo?: string, glueBatchHistory?: BatchEntry[],
  *   coatingBatchNo?: string, coatingBatchHistory?: BatchEntry[],
+ *   rubberBatchNo?: string, rubberBatchHistory?: BatchEntry[],
  * }} WorkRecord
  */
 
@@ -182,11 +183,21 @@ export const useWorkRecordsStore = defineStore('workRecords', () => {
         glueCoatingRecords.value.splice(idx, 1, r)
     }
 
+    function updateRubberBatch(workOrder, batchNo) {
+        const now = nowString()
+        const idx = records.value.findIndex((r) => r.workOrder === workOrder && r.status === '進行中')
+        if (idx === -1) return
+        const r = { ...records.value[idx] }
+        r.rubberBatchNo = batchNo
+        r.rubberBatchHistory = [...(r.rubberBatchHistory ?? []), { batchNo, time: now }]
+        records.value.splice(idx, 1, r)
+    }
+
     return {
         records, glueCoatingRecords,
         activeRecords, completedRecords,
         addRecord, startCoating, completeRecord,
         completeGlueStage, completeCoatingStage, completeByWorkOrder,
-        updateGlueBatch, updateCoatingBatch,
+        updateGlueBatch, updateCoatingBatch, updateRubberBatch,
     }
 })

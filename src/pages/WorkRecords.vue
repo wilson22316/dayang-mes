@@ -129,6 +129,8 @@ const currentRows = computed(() => {
 const mockHistory = [
     { id: '101', workOrder: 'WO-2026-R002', workOrderName: '產品B製膠工單', machine: '製膠攪拌機', machineId: 'R001', location: 'A棟1樓', category: '製膠', operator: '張三', startTime: '2026-05-21 08:00', endTime: '2026-05-21 16:30', status: '已完工' },
     { id: '104', workOrder: 'WO-2026-L001', workOrderName: '產品A淋膜工單', machine: '淋膜機', machineId: 'L001', location: 'E棟1樓', category: '淋膜', operator: '趙六', startTime: '2026-05-20 10:00', endTime: '2026-05-20 18:20', status: '已完工' },
+    { id: '105', workOrder: 'WO-2026-CV001', workOrderName: '產品A分條工單', machine: '分條機 (G-01)', machineId: 'CV001', location: 'B棟4樓', category: 'COVER加工', operator: '陳七', startTime: '2026-05-20 08:30', endTime: '2026-05-20 15:45', status: '已完工' },
+    { id: '106', workOrder: 'WO-2026-CV002', workOrderName: '產品B分條工單', machine: '分條機 (G-01)', machineId: 'CV001', location: 'B棟4樓', category: 'COVER加工', operator: '陳七', startTime: '2026-05-19 09:00', endTime: '2026-05-19 17:00', status: '已完工' },
 ]
 
 const mockHistoryGC = [

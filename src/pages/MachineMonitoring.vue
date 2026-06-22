@@ -22,7 +22,7 @@
 
         <q-tab-panels v-model="tab" animated class="panels">
             <q-tab-panel v-for="c in categories" :key="c.id" :name="c.id" class="q-pa-none">
-                <div class="machine-grid">
+                <div class="machine-grid" :class="{ 'coating-grid': c.id === 'coating' }">
                     <MachineCard
                         v-for="m in enrichedMachines(c.id)"
                         :key="m.id"
@@ -51,24 +51,26 @@ const tab = ref(initialTab)
 
 const categories = [
     { id: 'rubber', name: '製膠' },
+    { id: 'facility', name: '廠務' },
     { id: 'coating', name: '塗佈' },
     { id: 'processing', name: '本業加工' },
     { id: 'cover', name: 'COVER加工' },
     { id: 'lamination', name: '淋膜' },
-    { id: 'facility', name: '廠務' },
 ]
 
 const machines = {
     rubber: [
-        { id: 'R001', name: '製膠攪拌機', location: 'C棟1F', status: 'running', communicationStatus: 'normal' },
+        { id: 'R011', name: '製膠攪拌機(R-11)', location: 'C棟1F', status: 'running', communicationStatus: 'normal' },
+        { id: 'R021', name: '製膠攪拌機(R-21)', location: 'C棟1F', status: 'running', communicationStatus: 'normal' },
+        { id: 'R031', name: '製膠攪拌機(R-31)', location: 'C棟1F', status: 'running', communicationStatus: 'normal' },
     ],
     coating: [
         { id: 'C001', name: '調膠1', location: 'D棟1樓', status: 'running', communicationStatus: 'normal' },
         { id: 'C003', name: '調膠2', location: 'D棟1樓', status: 'standby', communicationStatus: 'normal' },
+        { id: 'C006', name: '塗佈機(A03)', location: 'D棟1樓', status: 'running', communicationStatus: 'normal' },
         { id: 'C004', name: '調膠3', location: 'E棟1樓', status: 'running', communicationStatus: 'normal' },
         { id: 'C005', name: '調膠4', location: 'E棟1樓', status: 'standby', communicationStatus: 'normal' },
-        { id: 'C002', name: '塗佈機1', location: 'D棟1樓', status: 'standby', communicationStatus: 'normal' },
-        { id: 'C006', name: '塗佈機2', location: 'E棟1樓', status: 'running', communicationStatus: 'normal' },
+        { id: 'C002', name: '塗佈機(A04)', location: 'E棟1樓', status: 'standby', communicationStatus: 'normal' },
     ],
     processing: [
         { id: 'P001', name: '熱切分條機 (E-17)', location: 'B棟3樓', status: 'running', communicationStatus: 'normal' },
@@ -89,7 +91,7 @@ const machines = {
         { id: 'L002', name: '薄膜複捲機', location: 'B棟1F', status: 'standby', communicationStatus: 'normal' },
     ],
     facility: [
-        { id: 'F001', name: '廠務設備', location: '-', status: 'running', communicationStatus: 'normal' },
+        { id: 'F001', name: '消防', location: '-', status: 'running', communicationStatus: 'normal' },
         { id: 'F002', name: '主鍋爐溫度', location: '-', status: 'running', communicationStatus: 'normal' },
         { id: 'F003', name: 'RTO PLC', location: '-', status: 'running', communicationStatus: 'normal' },
         { id: 'AQ001', name: '空氣品質1', location: '-', status: 'running', communicationStatus: 'normal' },
@@ -144,4 +146,5 @@ function enrichedMachines(categoryId) {
 :global(.body--dark .tab-bar .q-tab:not(.q-tab--active)) { color: #ffffff !important; }
 .panels { background: transparent; }
 .machine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.coating-grid { grid-template-columns: repeat(3, calc((100% - 64px) / 5)); justify-content: start; }
 </style>

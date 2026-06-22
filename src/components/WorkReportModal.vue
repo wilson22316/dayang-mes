@@ -28,7 +28,7 @@
                 <!-- Warning Banner -->
                 <div v-if="machineActiveRecord" class="warn-banner">
                     <svg class="warn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span v-if="isGlueMachine || isCoatingMachine">此機台已有工單進行中，僅可執行批號更新與完工操作。</span>
+                    <span v-if="isRubberMachine || isGlueMachine || isCoatingMachine">此機台已有工單進行中，僅可執行批號更新與完工操作。</span>
                     <span v-else>此機台已有工單進行中，僅可執行完工操作。</span>
                 </div>
                 <div v-if="isCoatingMachine && !machineActiveRecord && !pendingGCForCoating.length && !activeCoatingGC.length" class="warn-banner">
@@ -57,16 +57,12 @@
                     <!-- Batch Input Section (Only for Glue/Coating Machines) -->
                     <!-- Glue Machine Batch -->
                     <template v-if="isGlueMachine">
-                        <div class="form-group">
+                        <!-- 初始輸入：開工時才顯示 -->
+                        <div v-if="!machineActiveRecord" class="form-group">
                             <label class="form-label">膠料批號</label>
-                            <div class="batch-input-wrapper">
-                                <input v-model="glueBatchNo" class="form-input-ctrl" :placeholder="machineActiveRecord ? '輸入新膠料批號' : '輸入膠料批號'" />
-                                <button v-if="machineActiveRecord" class="update-batch-btn" :disabled="isBatchSame || !glueBatchNo.trim()" @click="handleGCOnlyUpdate">更新</button>
-                            </div>
-                            <div v-if="isBatchSame && glueBatchNo" class="batch-warn-text">批號與目前相同，請輸入新批號</div>
+                            <input v-model="glueBatchNo" class="form-input-ctrl" placeholder="輸入膠料批號" />
                         </div>
-                        
-                        <!-- Batch History -->
+                        <!-- 批號更新紀錄（更新操作已移至卡片上） -->
                         <div v-if="machineActiveRecord?.glueBatchHistory?.length" class="batch-history-box">
                             <div class="history-title">批號更新紀錄</div>
                             <div v-for="(e,i) in machineActiveRecord.glueBatchHistory" :key="i" class="history-row">
@@ -75,22 +71,35 @@
                             </div>
                         </div>
                     </template>
- 
+
                     <!-- Coating Machine Batch -->
                     <template v-if="isCoatingMachine">
-                        <div class="form-group">
+                        <!-- 初始輸入：開工時才顯示 -->
+                        <div v-if="!machineActiveRecord" class="form-group">
                             <label class="form-label">塗佈批號</label>
-                            <div class="batch-input-wrapper">
-                                <input v-model="coatingBatchNo" class="form-input-ctrl" :placeholder="machineActiveRecord ? '輸入新塗佈批號' : '輸入塗佈批號'" />
-                                <button v-if="machineActiveRecord" class="update-batch-btn" :disabled="isBatchSame || !coatingBatchNo.trim()" @click="handleGCOnlyUpdate">更新</button>
-                            </div>
-                            <div v-if="isBatchSame && coatingBatchNo" class="batch-warn-text">批號與目前相同，請輸入新批號</div>
+                            <input v-model="coatingBatchNo" class="form-input-ctrl" placeholder="輸入塗佈批號" />
                         </div>
- 
-                        <!-- Batch History -->
+                        <!-- 批號更新紀錄（更新操作已移至卡片上） -->
                         <div v-if="machineActiveRecord?.coatingBatchHistory?.length" class="batch-history-box">
                             <div class="history-title">批號更新紀錄</div>
                             <div v-for="(e,i) in machineActiveRecord.coatingBatchHistory" :key="i" class="history-row">
+                                <span class="h-no">{{ e.batchNo }}</span>
+                                <span class="h-time">{{ e.time }}</span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Rubber Machine Batch -->
+                    <template v-if="isRubberMachine">
+                        <!-- 初始輸入：開工時才顯示 -->
+                        <div v-if="!machineActiveRecord" class="form-group">
+                            <label class="form-label">製膠批號</label>
+                            <input v-model="rubberBatchNo" class="form-input-ctrl" placeholder="輸入製膠批號" />
+                        </div>
+                        <!-- 批號更新紀錄（更新操作已移至卡片上） -->
+                        <div v-if="machineActiveRecord?.rubberBatchHistory?.length" class="batch-history-box">
+                            <div class="history-title">批號更新紀錄</div>
+                            <div v-for="(e,i) in machineActiveRecord.rubberBatchHistory" :key="i" class="history-row">
                                 <span class="h-no">{{ e.batchNo }}</span>
                                 <span class="h-time">{{ e.time }}</span>
                             </div>
@@ -133,8 +142,9 @@ import { ref, computed, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useWorkRecordsStore } from '@/stores/workRecords.js'
 
-const GLUE_IDS = ['C001', 'C003', 'C004', 'C005']
-const COAT_IDS = ['C002', 'C006']
+const GLUE_IDS   = ['C001', 'C003', 'C004', 'C005']
+const COAT_IDS   = ['C002', 'C006']
+const RUBBER_IDS = ['R011', 'R021', 'R031']
 
 const glueCoatingWorkOrders = [
     { value: 'WO-2026-G001', label: 'WO-2026-G001 產品A塗佈工單' },
@@ -151,6 +161,24 @@ const machineWorkOrders = {
         { value: 'WO-2026-R002', label: 'WO-2026-R002 產品B製膠工單' },
         { value: 'WO-2026-R003', label: 'WO-2026-R003 產品C製膠工單' },
         { value: 'WO-2026-R004', label: 'WO-2026-R004 產品D製膠工單' },
+    ],
+    R011: [
+        { value: 'WO-2026-R011-001', label: 'WO-2026-R011-001 R-11製膠工單A' },
+        { value: 'WO-2026-R011-002', label: 'WO-2026-R011-002 R-11製膠工單B' },
+        { value: 'WO-2026-R011-003', label: 'WO-2026-R011-003 R-11製膠工單C' },
+        { value: 'WO-2026-R011-004', label: 'WO-2026-R011-004 R-11製膠工單D' },
+    ],
+    R021: [
+        { value: 'WO-2026-R021-001', label: 'WO-2026-R021-001 R-21製膠工單A' },
+        { value: 'WO-2026-R021-002', label: 'WO-2026-R021-002 R-21製膠工單B' },
+        { value: 'WO-2026-R021-003', label: 'WO-2026-R021-003 R-21製膠工單C' },
+        { value: 'WO-2026-R021-004', label: 'WO-2026-R021-004 R-21製膠工單D' },
+    ],
+    R031: [
+        { value: 'WO-2026-R031-001', label: 'WO-2026-R031-001 R-31製膠工單A' },
+        { value: 'WO-2026-R031-002', label: 'WO-2026-R031-002 R-31製膠工單B' },
+        { value: 'WO-2026-R031-003', label: 'WO-2026-R031-003 R-31製膠工單C' },
+        { value: 'WO-2026-R031-004', label: 'WO-2026-R031-004 R-31製膠工單D' },
     ],
     P001: [
         { value: 'WO-2026-P001', label: 'WO-2026-P001 產品A熱切工單' },
@@ -253,8 +281,9 @@ const props = defineProps({ modelValue: Boolean, machine: Object, categoryId: St
 const emit = defineEmits(['update:modelValue'])
 const open = computed({ get: () => props.modelValue, set: (v) => emit('update:modelValue', v) })
 
-const isGlueMachine = computed(() => GLUE_IDS.includes(props.machine?.id))
+const isGlueMachine    = computed(() => GLUE_IDS.includes(props.machine?.id))
 const isCoatingMachine = computed(() => COAT_IDS.includes(props.machine?.id))
+const isRubberMachine  = computed(() => RUBBER_IDS.includes(props.machine?.id))
 
 const machineActiveRecord = computed(() =>
     store.activeRecords.find(r => r.machineId === props.machine?.id)
@@ -271,6 +300,7 @@ const selectedWO = ref(null)
 const operator = ref('')
 const glueBatchNo = ref('')
 const coatingBatchNo = ref('')
+const rubberBatchNo = ref('')
 const confirmMode = ref(null)
 const showConfirm = computed({ get: () => confirmMode.value !== null, set: (v) => { if (!v) confirmMode.value = null } })
 
@@ -299,12 +329,9 @@ watch(() => props.modelValue, (newVal) => {
         if (rec) {
             selectedWO.value = rec.workOrder
             operator.value = rec.operator
-            if (isGlueMachine.value) {
-                glueBatchNo.value = rec.glueBatchNo || ''
-            }
-            if (isCoatingMachine.value) {
-                coatingBatchNo.value = rec.coatingBatchNo || ''
-            }
+            if (isGlueMachine.value)    glueBatchNo.value    = rec.glueBatchNo    || ''
+            if (isCoatingMachine.value) coatingBatchNo.value = rec.coatingBatchNo || ''
+            if (isRubberMachine.value)  rubberBatchNo.value  = rec.rubberBatchNo  || ''
         } else {
             resetForm()
         }
@@ -358,6 +385,10 @@ function handleStart() {
                 glueBatchNo: glueBatchNo.value,
                 glueBatchHistory: [{ batchNo: glueBatchNo.value, time: now }],
             } : {}),
+            ...(isRubberMachine.value && rubberBatchNo.value ? {
+                rubberBatchNo: rubberBatchNo.value,
+                rubberBatchHistory: [{ batchNo: rubberBatchNo.value, time: now }],
+            } : {}),
         })
     }
 
@@ -400,7 +431,7 @@ function handleUpdateCoat() {
 }
 
 function resetForm() {
-    selectedWO.value = null; operator.value = ''; glueBatchNo.value = ''; coatingBatchNo.value = ''
+    selectedWO.value = null; operator.value = ''; glueBatchNo.value = ''; coatingBatchNo.value = ''; rubberBatchNo.value = ''
 }
 </script>
 

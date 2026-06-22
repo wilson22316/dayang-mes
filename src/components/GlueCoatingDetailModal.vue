@@ -17,14 +17,20 @@
                     <div class="info-grid"><div><div class="label">調膠機台</div><div class="val">{{ record.glueMachine }}</div></div><div><div class="label">區域名稱</div><div class="val">{{ record.glueLocation }}</div></div></div>
                     <div class="info-grid"><div><div class="label">調膠人員</div><div class="val">{{ record.glueOperator }}</div></div><div><div class="label">狀態</div><span class="badge" :class="glueBadgeCls">{{ glueBadgeText }}</span></div></div>
                     <div class="info-grid"><div><div class="label">調膠開工時間</div><div class="val">{{ record.glueStartTime }}</div></div><div><div class="label">調膠完工時間</div><div class="val">{{ record.glueEndTime ?? '—' }}</div></div></div>
-                    <div v-if="record.glueBatchNo">
-                        <div class="label">膠料批號</div><div class="val q-mb-sm" style="font-weight:500">{{ record.glueBatchNo }}</div>
-                        <div v-if="record.glueBatchHistory?.length" class="batch-list">
-                            <div class="batch-title">批號更新紀錄</div>
-                            <div v-for="(e,i) in record.glueBatchHistory" :key="i" class="batch-row"><span class="batch-no">{{ e.batchNo }}</span><span class="batch-time">{{ e.time }}</span></div>
+                    <div v-if="glueBatchRows.length" class="wo-batch-timeline">
+                        <span class="wo-batch-label">膠料批號更新紀錄</span>
+                        <div class="batch-chips">
+                            <template v-for="(b, i) in glueBatchRows" :key="i">
+                                <div class="batch-chip" :class="b.isCompleted ? 'chip-completed' : b.isLast ? 'chip-active' : 'chip-done'">
+                                    <div class="chip-no">{{ b.batchNo }}</div>
+                                    <div class="chip-sub">{{ b.time }}</div>
+                                    <div class="chip-dur" :class="b.isCompleted ? 'dur-completed' : b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
+                                </div>
+                                <span v-if="i < glueBatchRows.length - 1" class="chip-arrow">→</span>
+                            </template>
                         </div>
                     </div>
-                    <button v-if="glueActive" class="teal-btn q-mt-sm" @click="confirmMode = 'glue'">調膠完工</button>
+
                 </div>
 
                 <!-- 塗佈階段 -->
@@ -34,14 +40,20 @@
                         <div class="info-grid"><div><div class="label">塗佈機台</div><div class="val">{{ record.coatingMachine ?? '—' }}</div></div><div><div class="label">區域名稱</div><div class="val">{{ record.coatingLocation ?? '—' }}</div></div></div>
                         <div class="info-grid"><div><div class="label">塗佈人員</div><div class="val">{{ record.coatingOperator ?? '—' }}</div></div><div><div class="label">狀態</div><span class="badge" :class="coatingBadgeCls">{{ coatingBadgeText }}</span></div></div>
                         <div class="info-grid"><div><div class="label">塗佈開工時間</div><div class="val">{{ record.coatingStartTime }}</div></div><div><div class="label">塗佈完工時間</div><div class="val">{{ record.coatingEndTime ?? '—' }}</div></div></div>
-                        <div v-if="record.coatingBatchNo">
-                            <div class="label">塗佈批號</div><div class="val q-mb-sm" style="font-weight:500">{{ record.coatingBatchNo }}</div>
-                            <div v-if="record.coatingBatchHistory?.length" class="batch-list">
-                                <div class="batch-title">批號更新紀錄</div>
-                                <div v-for="(e,i) in record.coatingBatchHistory" :key="i" class="batch-row"><span class="batch-no">{{ e.batchNo }}</span><span class="batch-time">{{ e.time }}</span></div>
+                        <div v-if="coatingBatchRows.length" class="wo-batch-timeline">
+                            <span class="wo-batch-label">塗佈批號更新紀錄</span>
+                            <div class="batch-chips">
+                                <template v-for="(b, i) in coatingBatchRows" :key="i">
+                                    <div class="batch-chip" :class="b.isCompleted ? 'chip-completed' : b.isLast ? 'chip-active' : 'chip-done'">
+                                        <div class="chip-no">{{ b.batchNo }}</div>
+                                        <div class="chip-sub">{{ b.time }}</div>
+                                        <div class="chip-dur" :class="b.isCompleted ? 'dur-completed' : b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
+                                    </div>
+                                    <span v-if="i < coatingBatchRows.length - 1" class="chip-arrow">→</span>
+                                </template>
                             </div>
                         </div>
-                        <button v-if="coatingActive" class="teal-btn q-mt-sm" @click="confirmMode = 'coating'">塗佈完工</button>
+
                     </template>
                     <div v-else class="text-muted">尚未開始塗佈</div>
                 </div>
@@ -49,26 +61,44 @@
         </q-card>
     </q-dialog>
 
-    <q-dialog v-model="showConfirm" persistent>
-        <q-card class="dialog-card" style="width:380px">
-            <q-card-section>
-                <div class="text-subtitle1" style="font-weight:500">確認完工</div>
-                <div class="text-body2 q-mt-sm" style="color:var(--c-muted-fg)">
-                    確定要將工單 <strong style="color:var(--c-fg)">{{ record?.workOrder }}</strong> 執行{{ confirmMode === 'glue' ? '調膠完工' : '塗佈完工' }}？此操作無法撤銷。
-                </div>
-            </q-card-section>
-            <q-card-actions class="q-px-md q-pb-md">
-                <button class="cancel-btn" @click="confirmMode = null">取消</button>
-                <button class="teal-btn" @click="handleConfirm">確認完工</button>
-            </q-card-actions>
-        </q-card>
-    </q-dialog>
+
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import { useWorkRecordsStore } from '@/stores/workRecords.js'
+
+function parseMs(timeStr) {
+    if (!timeStr) return null
+    return new Date(timeStr.replace(' ', 'T') + ':00').getTime()
+}
+
+function formatDuration(startStr, endStr) {
+    const start = parseMs(startStr)
+    const end   = endStr ? parseMs(endStr) : Date.now()
+    if (!start || !end) return '-'
+    const totalMins = Math.floor((end - start) / 60000)
+    const h = Math.floor(totalMins / 60)
+    const m = totalMins % 60
+    return h > 0 ? `${h}時${m > 0 ? m + '分' : ''}` : `${m}分`
+}
+
+function buildBatchRows(history, stageEndTime = null, stageCompleted = false) {
+    if (!history?.length) return []
+    return history.map((entry, i) => {
+        const isLast = i === history.length - 1
+        let duration
+        if (!isLast) {
+            duration = formatDuration(entry.time, history[i + 1].time)
+        } else if (stageEndTime) {
+            duration = formatDuration(entry.time, stageEndTime)
+        } else {
+            duration = formatDuration(entry.time, null) + ' (進行中)'
+        }
+        return { batchNo: entry.batchNo, time: entry.time, isLast, isCompleted: isLast && stageCompleted, duration }
+    })
+}
 
 const $q = useQuasar()
 const store = useWorkRecordsStore()
@@ -78,6 +108,14 @@ const emit = defineEmits(['update:modelValue'])
 const open = computed({ get: () => props.modelValue, set: (v) => emit('update:modelValue', v) })
 const confirmMode = ref(null)
 const showConfirm = computed({ get: () => confirmMode.value !== null, set: (v) => { if (!v) confirmMode.value = null } })
+
+const isOverallCompleted = computed(() => props.record?.status === '已完工')
+const glueBatchRows    = computed(() => buildBatchRows(
+    props.record?.glueBatchHistory,
+    props.record?.glueEndTime ?? props.record?.coatingEndTime,
+    !!props.record?.glueEndTime || isOverallCompleted.value
+))
+const coatingBatchRows = computed(() => buildBatchRows(props.record?.coatingBatchHistory, props.record?.coatingEndTime, !!props.record?.coatingEndTime))
 
 const glueActive = computed(() => props.record && (props.record.status === '調膠中' || props.record.status === '調膠塗佈中'))
 const coatingActive = computed(() => props.record && (props.record.status === '調膠塗佈中' || props.record.status === '塗佈中'))
@@ -136,11 +174,20 @@ function handleConfirm() {
 .badge-blue { background: rgba(59,130,246,0.2); color: var(--c-blue); }
 .badge-yellow { background: rgba(234,179,8,0.2); color: var(--c-yellow); }
 .badge-muted { background: var(--c-secondary); color: var(--c-muted-fg); }
-.batch-list { margin-top: 4px; }
-.batch-title { font-size: 12px; color: var(--c-muted-fg); margin-bottom: 4px; }
-.batch-row { display: flex; justify-content: space-between; font-size: 12px; background: var(--c-batch-bg); border-radius: 4px; padding: 6px 10px; margin-bottom: 4px; }
-.batch-no { color: var(--c-dialog-title); font-weight: 500; }
-.batch-time { color: var(--c-muted-fg); }
+/* 批號 chip timeline */
+.wo-batch-timeline { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 0; margin-top: -4px; }
+.wo-batch-label { font-size: 14px; color: var(--c-muted-fg); line-height: 1.2; }
+.batch-chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.batch-chip { padding: 6px 12px; border-radius: 7px; display: flex; flex-direction: column; gap: 1px; min-width: 90px; }
+.chip-done { background: var(--c-wo-bg); border: 1px solid var(--c-border); }
+.chip-active { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); }
+.chip-completed { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.3); }
+.chip-no { font-size: 16px; font-weight: 600; color: var(--c-fg); }
+.chip-sub { font-size: 12px; color: var(--c-muted-fg); margin-top: 1px; }
+.chip-dur { font-size: 12px; color: var(--c-muted-fg); margin-top: 2px; }
+.dur-active { color: var(--c-green); font-weight: 500; }
+.dur-completed { color: var(--c-blue); font-weight: 500; }
+.chip-arrow { color: var(--c-muted-fg); font-size: 14px; flex-shrink: 0; }
 .teal-btn, .cancel-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%; }
 .teal-btn { background: var(--c-teal); color: #fff; }
 .teal-btn:hover { opacity: 0.85; }

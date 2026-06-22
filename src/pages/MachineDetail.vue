@@ -23,12 +23,55 @@
             </div>
 
             <!-- Active Work Order -->
-            <div class="wo-card">
+            <div v-if="machine.category !== '廠務'" class="wo-card">
                 <div class="wo-col"><div class="wo-label">當前工單</div><div class="wo-val fw-500">{{ activeRecord?.workOrder ?? '-' }}</div></div>
                 <div class="wo-col"><div class="wo-label">操作人員</div><div class="wo-val">{{ activeRecord?.operator ?? '-' }}</div></div>
                 <div class="wo-col"><div class="wo-label">開工時間</div><div class="wo-val">{{ activeRecord?.startTime ?? '-' }}</div></div>
-                <div v-if="activeRecord?.glueBatchNo" class="wo-col"><div class="wo-label">膠料批號</div><div class="wo-val">{{ activeRecord.glueBatchNo }}</div></div>
-                <div v-if="activeRecord?.coatingBatchNo" class="wo-col"><div class="wo-label">塗佈批號</div><div class="wo-val">{{ activeRecord.coatingBatchNo }}</div></div>
+
+                <!-- 膠料批號紀錄 -->
+                <div v-if="glueBatchRows.length" class="wo-batch-timeline">
+                    <span class="wo-batch-label">膠料批號<br>更新紀錄</span>
+                    <div class="batch-chips">
+                        <template v-for="(b, i) in glueBatchRows" :key="i">
+                            <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
+                                <div class="chip-no">{{ b.batchNo }}</div>
+                                <div class="chip-sub">{{ b.time }}</div>
+                                <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
+                            </div>
+                            <span v-if="i < glueBatchRows.length - 1" class="chip-arrow">→</span>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- 塗佈批號紀錄 -->
+                <div v-if="coatingBatchRows.length" class="wo-batch-timeline">
+                    <span class="wo-batch-label">塗佈批號</span>
+                    <div class="batch-chips">
+                        <template v-for="(b, i) in coatingBatchRows" :key="i">
+                            <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
+                                <div class="chip-no">{{ b.batchNo }}</div>
+                                <div class="chip-sub">{{ b.time }}</div>
+                                <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
+                            </div>
+                            <span v-if="i < coatingBatchRows.length - 1" class="chip-arrow">→</span>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- 製膠批號紀錄 -->
+                <div v-if="rubberBatchRows.length" class="wo-batch-timeline">
+                    <span class="wo-batch-label">製膠批號<br>更新紀錄</span>
+                    <div class="batch-chips">
+                        <template v-for="(b, i) in rubberBatchRows" :key="i">
+                            <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
+                                <div class="chip-no">{{ b.batchNo }}</div>
+                                <div class="chip-sub">{{ b.time }}</div>
+                                <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
+                            </div>
+                            <span v-if="i < rubberBatchRows.length - 1" class="chip-arrow">→</span>
+                        </template>
+                    </div>
+                </div>
             </div>
 
             <!-- Coating Machine 2 Tabs -->
@@ -1772,8 +1815,8 @@
                 </div>
             </template>
 
-            <!-- 製膠攪拌機 (R001) RTO Dashboard -->
-            <template v-else-if="machineId === 'R001'">
+            <!-- 製膠攪拌機 (R001/R011/R021/R031) RTO Dashboard -->
+            <template v-else-if="machineId === 'R001' || machineId === 'R011' || machineId === 'R021' || machineId === 'R031'">
                 <div class="rto-wrap">
                     <div class="rto-canvas">
                         <img :src="rtoGlueImg" class="rto-bg-img" />
@@ -2382,12 +2425,15 @@ const fromCategory = window.history.state?.fromCategory
 
 const mockData = {
     R001: { name: '製膠攪拌機', location: 'C棟1F', category: '製膠', status: 'running', communicationStatus: 'normal', points: [{ name: '溫度1', value: '78.5°C', unit: '°C', status: 'normal' },{ name: '溫度2', value: '82.1°C', unit: '°C', status: 'normal' },{ name: '壓力', value: '3.2 bar', unit: 'bar', status: 'normal' },{ name: '轉速', value: '1250 rpm', unit: 'rpm', status: 'normal' },{ name: '電流', value: '45.2 A', unit: 'A', status: 'normal' },{ name: '振動', value: '0.8 mm/s', unit: 'mm/s', status: 'normal' }] },
+    R011: { name: '製膠攪拌機(R-11)', location: 'C棟1F', category: '製膠', status: 'running', communicationStatus: 'normal', points: [{ name: '溫度1', value: '78.5°C', unit: '°C', status: 'normal' },{ name: '溫度2', value: '82.1°C', unit: '°C', status: 'normal' },{ name: '壓力', value: '3.2 bar', unit: 'bar', status: 'normal' },{ name: '轉速', value: '1250 rpm', unit: 'rpm', status: 'normal' },{ name: '電流', value: '45.2 A', unit: 'A', status: 'normal' },{ name: '振動', value: '0.8 mm/s', unit: 'mm/s', status: 'normal' }] },
+    R021: { name: '製膠攪拌機(R-21)', location: 'C棟1F', category: '製膠', status: 'running', communicationStatus: 'normal', points: [{ name: '溫度1', value: '79.2°C', unit: '°C', status: 'normal' },{ name: '溫度2', value: '81.5°C', unit: '°C', status: 'normal' },{ name: '壓力', value: '3.1 bar', unit: 'bar', status: 'normal' },{ name: '轉速', value: '1230 rpm', unit: 'rpm', status: 'normal' },{ name: '電流', value: '44.8 A', unit: 'A', status: 'normal' },{ name: '振動', value: '0.7 mm/s', unit: 'mm/s', status: 'normal' }] },
+    R031: { name: '製膠攪拌機(R-31)', location: 'C棟1F', category: '製膠', status: 'running', communicationStatus: 'normal', points: [{ name: '溫度1', value: '77.8°C', unit: '°C', status: 'normal' },{ name: '溫度2', value: '80.9°C', unit: '°C', status: 'normal' },{ name: '壓力', value: '3.3 bar', unit: 'bar', status: 'normal' },{ name: '轉速', value: '1260 rpm', unit: 'rpm', status: 'normal' },{ name: '電流', value: '45.5 A', unit: 'A', status: 'normal' },{ name: '振動', value: '0.9 mm/s', unit: 'mm/s', status: 'normal' }] },
     C001: { name: '調膠1', location: 'D棟1樓', category: '塗佈', status: 'running', communicationStatus: 'normal', points: [{ name: '溫度', value: '72.3°C', unit: '°C', status: 'normal' }] },
     C003: { name: '調膠2', location: 'D棟1樓', category: '塗佈', status: 'standby', communicationStatus: 'normal', points: [{ name: '溫度', value: '70.1°C', unit: '°C', status: 'normal' }] },
     C004: { name: '調膠3', location: 'E棟1樓', category: '塗佈', status: 'running', communicationStatus: 'normal', points: [{ name: '溫度', value: '73.5°C', unit: '°C', status: 'normal' }] },
     C005: { name: '調膠4', location: 'E棟1樓', category: '塗佈', status: 'standby', communicationStatus: 'normal', points: [{ name: '溫度', value: '68.9°C', unit: '°C', status: 'normal' }] },
-    C002: { name: '塗佈機1', location: 'D棟1樓', category: '塗佈', status: 'standby', communicationStatus: 'normal', points: [{ name: '塗佈溫度', value: '65.3°C', unit: '°C', status: 'normal' },{ name: '烘箱溫度', value: '120.5°C', unit: '°C', status: 'normal' },{ name: '張力', value: '15.2 N', unit: 'N', status: 'warning' },{ name: '速度', value: '80 m/min', unit: 'm/min', status: 'normal' },{ name: '塗佈厚度', value: '25.5 μm', unit: 'μm', status: 'normal' },{ name: '電流', value: '28.7 A', unit: 'A', status: 'normal' }] },
-    C006: { name: '塗佈機2', location: 'E棟1樓', category: '塗佈', status: 'running', communicationStatus: 'normal', points: [{ name: '塗佈溫度', value: '67.1°C', unit: '°C', status: 'normal' },{ name: '烘箱溫度', value: '122.0°C', unit: '°C', status: 'normal' },{ name: '張力', value: '16.0 N', unit: 'N', status: 'normal' },{ name: '速度', value: '85 m/min', unit: 'm/min', status: 'normal' },{ name: '塗佈厚度', value: '26.0 μm', unit: 'μm', status: 'normal' },{ name: '電流', value: '29.5 A', unit: 'A', status: 'normal' }] },
+    C002: { name: '塗佈機(A04)', location: 'E棟1樓', category: '塗佈', status: 'standby', communicationStatus: 'normal', points: [{ name: '塗佈溫度', value: '65.3°C', unit: '°C', status: 'normal' },{ name: '烘箱溫度', value: '120.5°C', unit: '°C', status: 'normal' },{ name: '張力', value: '15.2 N', unit: 'N', status: 'warning' },{ name: '速度', value: '80 m/min', unit: 'm/min', status: 'normal' },{ name: '塗佈厚度', value: '25.5 μm', unit: 'μm', status: 'normal' },{ name: '電流', value: '28.7 A', unit: 'A', status: 'normal' }] },
+    C006: { name: '塗佈機(A03)', location: 'D棟1樓', category: '塗佈', status: 'running', communicationStatus: 'normal', points: [{ name: '塗佈溫度', value: '67.1°C', unit: '°C', status: 'normal' },{ name: '烘箱溫度', value: '122.0°C', unit: '°C', status: 'normal' },{ name: '張力', value: '16.0 N', unit: 'N', status: 'normal' },{ name: '速度', value: '85 m/min', unit: 'm/min', status: 'normal' },{ name: '塗佈厚度', value: '26.0 μm', unit: 'μm', status: 'normal' },{ name: '電流', value: '29.5 A', unit: 'A', status: 'normal' }] },
     P001: { name: '熱切分條機 (E-17)', location: 'B棟3樓', category: '本業加工', status: 'running', communicationStatus: 'normal', points: [{ name: '米數', value: '1250 m', unit: 'm', status: 'normal' },{ name: '溫度', value: '185.0°C', unit: '°C', status: 'normal' },{ name: '張力', value: '22.8 N', unit: 'N', status: 'normal' },{ name: '轉速', value: '45 m/min', unit: 'm/min', status: 'normal' }] },
     P002: { name: '裁切設備 (E-11)', location: 'B棟3樓', category: '本業加工', status: 'standby', communicationStatus: 'normal', points: [{ name: '刀具溫度', value: '28.2°C', unit: '°C', status: 'normal' },{ name: '裁切速度', value: '0 m/min', unit: 'm/min', status: 'normal' },{ name: '氣壓', value: '6.0 bar', unit: 'bar', status: 'normal' },{ name: '電流', value: '2.1 A', unit: 'A', status: 'normal' }] },
     P004: { name: '裁切設備 (E-12)', location: 'B棟3樓', category: '本業加工', status: 'running', communicationStatus: 'normal', points: [{ name: '刀具溫度', value: '29.5°C', unit: '°C', status: 'normal' },{ name: '裁切速度', value: '12 m/min', unit: 'm/min', status: 'normal' },{ name: '氣壓', value: '6.2 bar', unit: 'bar', status: 'normal' },{ name: '電流', value: '8.4 A', unit: 'A', status: 'normal' }] },
@@ -2400,7 +2446,7 @@ const mockData = {
     CV004: { name: '薄膜斷裁機', location: 'B棟4樓', category: 'COVER加工', status: 'stopped', communicationStatus: 'normal', points: [{ name: '裁切溫度', value: '28.0°C', unit: '°C', status: 'normal' },{ name: '裁切速度', value: '0 m/min', unit: 'm/min', status: 'normal' },{ name: '氣壓', value: '5.8 bar', unit: 'bar', status: 'normal' },{ name: '電流', value: '0.5 A', unit: 'A', status: 'normal' }] },
     L001: { name: '淋膜機', location: 'B棟1F', category: '淋膜', status: 'running', communicationStatus: 'normal', points: [{ name: '淋膜溫度', value: '168.0°C', unit: '°C', status: 'normal' },{ name: '淋膜速度', value: '75 m/min', unit: 'm/min', status: 'normal' },{ name: '膜厚', value: '18.2 μm', unit: 'μm', status: 'normal' },{ name: '張力', value: '20.1 N', unit: 'N', status: 'normal' },{ name: '電流', value: '52.6 A', unit: 'A', status: 'normal' },{ name: '冷卻水溫', value: '18.5°C', unit: '°C', status: 'normal' }] },
     L002: { name: '薄膜複捲機', location: 'B棟1F', category: '淋膜', status: 'standby', communicationStatus: 'normal', points: [] },
-    F001: { name: '廠務設備', location: '-', category: '廠務', status: 'running', communicationStatus: 'normal', points: [{ name: 'DI/O接點', value: '正常', unit: '', status: 'normal' }] },
+    F001: { name: '消防', location: '-', category: '廠務', status: 'running', communicationStatus: 'normal', points: [{ name: 'DI/O接點', value: '正常', unit: '', status: 'normal' }] },
     F002: { name: '主鍋爐溫度', location: '-', category: '廠務', status: 'running', communicationStatus: 'normal', points: [{ name: '溫度1', value: '185.5°C', unit: '°C', status: 'normal' },{ name: '溫度2', value: '172.3°C', unit: '°C', status: 'normal' },{ name: '溫度3', value: '168.0°C', unit: '°C', status: 'normal' }] },
     F003: { name: 'RTO PLC', location: '-', category: '廠務', status: 'running', communicationStatus: 'normal', points: [{ name: '爐膛溫度', value: '820.0°C', unit: '°C', status: 'normal' },{ name: '風量', value: '3500 m³/h', unit: 'm³/h', status: 'normal' },{ name: '廢氣濃度', value: '85 ppm', unit: 'ppm', status: 'normal' },{ name: '熱回收效率', value: '94.5 %', unit: '%', status: 'normal' },{ name: '電流', value: '62.8 A', unit: 'A', status: 'normal' }] },
     AQ001: { name: '空氣品質1', location: '-', category: '廠務', status: 'running', communicationStatus: 'normal', points: [] },
@@ -2409,6 +2455,35 @@ const mockData = {
 
 const machine = computed(() => mockData[machineId.value])
 const activeRecord = computed(() => store.activeRecords.find(r => r.machineId === machineId.value))
+
+/* 批號紀錄輔助 */
+function parseMs(timeStr) {
+    if (!timeStr) return null
+    return new Date(timeStr.replace(' ', 'T') + ':00').getTime()
+}
+function formatDuration(startStr, endStr) {
+    const start = parseMs(startStr)
+    const end   = endStr ? parseMs(endStr) : Date.now()
+    if (!start || !end) return '-'
+    const totalMins = Math.floor((end - start) / 60000)
+    const h = Math.floor(totalMins / 60)
+    const m = totalMins % 60
+    return h > 0 ? `${h}時${m > 0 ? m + '分' : ''}` : `${m}分`
+}
+function buildBatchRows(history) {
+    if (!history?.length) return []
+    return history.map((entry, i) => ({
+        batchNo:  entry.batchNo,
+        time:     entry.time,
+        isLast:   i === history.length - 1,
+        duration: i < history.length - 1
+            ? formatDuration(entry.time, history[i + 1].time)
+            : formatDuration(entry.time, null) + ' (進行中)',
+    }))
+}
+const glueBatchRows    = computed(() => buildBatchRows(activeRecord.value?.glueBatchHistory))
+const coatingBatchRows = computed(() => buildBatchRows(activeRecord.value?.coatingBatchHistory))
+const rubberBatchRows  = computed(() => buildBatchRows(activeRecord.value?.rubberBatchHistory))
 
 /* Strip the trailing unit from a point value string (e.g. '1250 m' → '1250') */
 function pointNumber(p) {
@@ -2538,6 +2613,18 @@ function goBack() {
 .status-standby { background: rgba(234,179,8,0.2); color: var(--c-yellow); }
 .status-stopped { background: rgba(239,68,68,0.2); color: var(--c-red); }
 .wo-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 18px 24px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 24px 64px; font-size: 14px; }
+/* 批號橫向時間軸 */
+.wo-batch-timeline { flex-basis: 100%; display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid var(--c-border); flex-wrap: wrap; }
+.wo-batch-label { font-size: 14px; color: var(--c-muted-fg); min-width: 52px; line-height: 1.6; align-self: center; }
+.batch-chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.batch-chip { padding: 6px 12px; border-radius: 7px; display: flex; flex-direction: column; gap: 1px; min-width: 90px; }
+.chip-done { background: var(--c-wo-bg); border: 1px solid var(--c-border); }
+.chip-active { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); }
+.chip-no { font-size: 16px; font-weight: 600; color: var(--c-fg); }
+.chip-sub { font-size: 12px; color: var(--c-muted-fg); margin-top: 1px; }
+.chip-dur { font-size: 12px; color: var(--c-muted-fg); margin-top: 2px; }
+.dur-active { color: var(--c-green); font-weight: 500; }
+.chip-arrow { color: var(--c-muted-fg); font-size: 14px; flex-shrink: 0; }
 .wo-col { display: flex; flex-direction: column; }
 .wo-label { font-size: 14px; color: var(--c-muted-fg); margin-bottom: 2px; }
 .wo-val { font-size: 16px; color: var(--c-fg); }
