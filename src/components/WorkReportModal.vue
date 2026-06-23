@@ -62,12 +62,18 @@
                             <label class="form-label">膠料批號</label>
                             <input v-model="glueBatchNo" class="form-input-ctrl" placeholder="輸入膠料批號" />
                         </div>
-                        <!-- 批號更新紀錄（更新操作已移至卡片上） -->
-                        <div v-if="machineActiveRecord?.glueBatchHistory?.length" class="batch-history-box">
-                            <div class="history-title">批號更新紀錄</div>
-                            <div v-for="(e,i) in machineActiveRecord.glueBatchHistory" :key="i" class="history-row">
-                                <span class="h-no">{{ e.batchNo }}</span>
-                                <span class="h-time">{{ e.time }}</span>
+                        <!-- 膠料批號更新紀錄時間軸 -->
+                        <div v-if="glueBatchRows.length" class="modal-batch-timeline">
+                            <div class="timeline-section-label">膠料批號更新紀錄</div>
+                            <div class="batch-chips">
+                                <template v-for="(b, i) in glueBatchRows" :key="i">
+                                    <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
+                                        <div class="chip-no">{{ b.batchNo }}</div>
+                                        <div class="chip-sub">{{ b.time }}</div>
+                                        <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
+                                    </div>
+                                    <span v-if="i < glueBatchRows.length - 1" class="chip-arrow">→</span>
+                                </template>
                             </div>
                         </div>
                     </template>
@@ -79,12 +85,32 @@
                             <label class="form-label">塗佈批號</label>
                             <input v-model="coatingBatchNo" class="form-input-ctrl" placeholder="輸入塗佈批號" />
                         </div>
-                        <!-- 批號更新紀錄（更新操作已移至卡片上） -->
-                        <div v-if="machineActiveRecord?.coatingBatchHistory?.length" class="batch-history-box">
-                            <div class="history-title">批號更新紀錄</div>
-                            <div v-for="(e,i) in machineActiveRecord.coatingBatchHistory" :key="i" class="history-row">
-                                <span class="h-no">{{ e.batchNo }}</span>
-                                <span class="h-time">{{ e.time }}</span>
+                        <!-- 塗佈批號更新紀錄時間軸 -->
+                        <div v-if="coatingBatchRows.length" class="modal-batch-timeline">
+                            <div class="timeline-section-label">塗佈批號更新紀錄</div>
+                            <div class="batch-chips">
+                                <template v-for="(b, i) in coatingBatchRows" :key="i">
+                                    <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
+                                        <div class="chip-no">{{ b.batchNo }}</div>
+                                        <div class="chip-sub">{{ b.time }}</div>
+                                        <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
+                                    </div>
+                                    <span v-if="i < coatingBatchRows.length - 1" class="chip-arrow">→</span>
+                                </template>
+                            </div>
+                        </div>
+                        <!-- 同工單膠料批號更新紀錄時間軸 -->
+                        <div v-if="coatingGlueBatchRows.length" class="modal-batch-timeline">
+                            <div class="timeline-section-label">膠料批號更新紀錄</div>
+                            <div class="batch-chips">
+                                <template v-for="(b, i) in coatingGlueBatchRows" :key="i">
+                                    <div class="batch-chip chip-done">
+                                        <div class="chip-no">{{ b.batchNo }}</div>
+                                        <div class="chip-sub">{{ b.time }}</div>
+                                        <div class="chip-dur">{{ b.duration }}</div>
+                                    </div>
+                                    <span v-if="i < coatingGlueBatchRows.length - 1" class="chip-arrow">→</span>
+                                </template>
                             </div>
                         </div>
                     </template>
@@ -93,15 +119,21 @@
                     <template v-if="isRubberMachine">
                         <!-- 初始輸入：開工時才顯示 -->
                         <div v-if="!machineActiveRecord" class="form-group">
-                            <label class="form-label">製膠批號</label>
-                            <input v-model="rubberBatchNo" class="form-input-ctrl" placeholder="輸入製膠批號" />
+                            <label class="form-label">膠料批號</label>
+                            <input v-model="rubberBatchNo" class="form-input-ctrl" placeholder="輸入膠料批號" />
                         </div>
-                        <!-- 批號更新紀錄（更新操作已移至卡片上） -->
-                        <div v-if="machineActiveRecord?.rubberBatchHistory?.length" class="batch-history-box">
-                            <div class="history-title">批號更新紀錄</div>
-                            <div v-for="(e,i) in machineActiveRecord.rubberBatchHistory" :key="i" class="history-row">
-                                <span class="h-no">{{ e.batchNo }}</span>
-                                <span class="h-time">{{ e.time }}</span>
+                        <!-- 膠料批號更新紀錄時間軸 -->
+                        <div v-if="rubberBatchRows.length" class="modal-batch-timeline">
+                            <div class="timeline-section-label">膠料批號更新紀錄</div>
+                            <div class="batch-chips">
+                                <template v-for="(b, i) in rubberBatchRows" :key="i">
+                                    <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
+                                        <div class="chip-no">{{ b.batchNo }}</div>
+                                        <div class="chip-sub">{{ b.time }}</div>
+                                        <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
+                                    </div>
+                                    <span v-if="i < rubberBatchRows.length - 1" class="chip-arrow">→</span>
+                                </template>
                             </div>
                         </div>
                     </template>
@@ -304,6 +336,41 @@ const rubberBatchNo = ref('')
 const confirmMode = ref(null)
 const showConfirm = computed({ get: () => confirmMode.value !== null, set: (v) => { if (!v) confirmMode.value = null } })
 
+function parseMs(timeStr) {
+    if (!timeStr) return null
+    return new Date(timeStr.replace(' ', 'T') + ':00').getTime()
+}
+function formatDuration(startStr, endStr) {
+    const start = parseMs(startStr)
+    const end   = endStr ? parseMs(endStr) : Date.now()
+    if (!start || !end) return '-'
+    const totalMins = Math.floor((end - start) / 60000)
+    const h = Math.floor(totalMins / 60)
+    const m = totalMins % 60
+    return h > 0 ? `${h}時${m > 0 ? m + '分' : ''}` : `${m}分`
+}
+function buildBatchRows(history) {
+    if (!history?.length) return []
+    return history.map((entry, i) => ({
+        batchNo:  entry.batchNo,
+        time:     entry.time,
+        isLast:   i === history.length - 1,
+        duration: i < history.length - 1
+            ? formatDuration(entry.time, history[i + 1].time)
+            : formatDuration(entry.time, null) + ' (進行中)',
+    }))
+}
+const rubberBatchRows = computed(() => buildBatchRows(machineActiveRecord.value?.rubberBatchHistory))
+const glueBatchRows    = computed(() => buildBatchRows(machineActiveRecord.value?.glueBatchHistory))
+const coatingBatchRows = computed(() => buildBatchRows(machineActiveRecord.value?.coatingBatchHistory))
+
+const coatingGCRecord     = computed(() => {
+    const rec = machineActiveRecord.value
+    if (!rec || !isCoatingMachine.value) return null
+    return store.glueCoatingRecords.find(r => r.workOrder === rec.workOrder) ?? null
+})
+const coatingGlueBatchRows = computed(() => buildBatchRows(coatingGCRecord.value?.glueBatchHistory))
+
 const isBatchSame = computed(() => {
     const rec = machineActiveRecord.value
     if (!rec) return false
@@ -441,7 +508,7 @@ function resetForm() {
     color: var(--c-fg);
     border: 1px solid var(--c-dialog-border);
     border-radius: 12px;
-    width: 460px;
+    width: 520px;
     max-width: 90vw;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
@@ -659,6 +726,71 @@ function resetForm() {
 .update-batch-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.modal-batch-timeline {
+}
+
+.timeline-section-label {
+    font-size: 13px;
+    color: var(--c-muted-fg);
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.batch-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.batch-chip {
+    padding: 6px 10px;
+    border-radius: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 80px;
+}
+
+.chip-done {
+    background: var(--c-wo-bg);
+    border: 1px solid var(--c-border);
+}
+
+.chip-active {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.chip-no {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--c-fg);
+}
+
+.chip-sub {
+    font-size: 11px;
+    color: var(--c-muted-fg);
+    margin-top: 1px;
+}
+
+.chip-dur {
+    font-size: 11px;
+    color: var(--c-muted-fg);
+    margin-top: 2px;
+}
+
+.dur-active {
+    color: var(--c-green);
+    font-weight: 500;
+}
+
+.chip-arrow {
+    color: var(--c-muted-fg);
+    font-size: 14px;
+    flex-shrink: 0;
 }
 
 .batch-history-box {

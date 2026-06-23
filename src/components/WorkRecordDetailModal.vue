@@ -50,7 +50,7 @@
                 <template v-if="rubberBatchRows.length || glueBatchRows.length || coatingBatchRows.length">
                     <div class="batch-chips-section">
                         <div v-if="rubberBatchRows.length" class="wo-batch-timeline">
-                            <span class="wo-batch-label">製膠批號更新紀錄</span>
+                            <span class="wo-batch-label">膠料批號更新紀錄</span>
                             <div class="batch-chips">
                                 <template v-for="(b, i) in rubberBatchRows" :key="i">
                                     <div class="batch-chip" :class="b.isCompleted ? 'chip-completed' : b.isLast ? 'chip-active' : 'chip-done'">

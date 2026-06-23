@@ -27,51 +27,11 @@
                 <div class="wo-col"><div class="wo-label">當前工單</div><div class="wo-val fw-500">{{ activeRecord?.workOrder ?? '-' }}</div></div>
                 <div class="wo-col"><div class="wo-label">操作人員</div><div class="wo-val">{{ activeRecord?.operator ?? '-' }}</div></div>
                 <div class="wo-col"><div class="wo-label">開工時間</div><div class="wo-val">{{ activeRecord?.startTime ?? '-' }}</div></div>
+                <div v-if="isRubberMachine" class="wo-col"><div class="wo-label">塗佈批號</div><div class="wo-val">{{ activeRecord?.rubberBatchNo ?? '-' }}</div></div>
+                <div v-if="isGlueMachine" class="wo-col"><div class="wo-label">膠料批號</div><div class="wo-val">{{ activeRecord?.glueBatchNo ?? '-' }}</div></div>
+                <div v-if="isCoatingMachine" class="wo-col"><div class="wo-label">塗佈批號</div><div class="wo-val">{{ activeRecord?.coatingBatchNo ?? '-' }}</div></div>
 
-                <!-- 膠料批號紀錄 -->
-                <div v-if="glueBatchRows.length" class="wo-batch-timeline">
-                    <span class="wo-batch-label">膠料批號<br>更新紀錄</span>
-                    <div class="batch-chips">
-                        <template v-for="(b, i) in glueBatchRows" :key="i">
-                            <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
-                                <div class="chip-no">{{ b.batchNo }}</div>
-                                <div class="chip-sub">{{ b.time }}</div>
-                                <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
-                            </div>
-                            <span v-if="i < glueBatchRows.length - 1" class="chip-arrow">→</span>
-                        </template>
-                    </div>
-                </div>
 
-                <!-- 塗佈批號紀錄 -->
-                <div v-if="coatingBatchRows.length" class="wo-batch-timeline">
-                    <span class="wo-batch-label">塗佈批號</span>
-                    <div class="batch-chips">
-                        <template v-for="(b, i) in coatingBatchRows" :key="i">
-                            <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
-                                <div class="chip-no">{{ b.batchNo }}</div>
-                                <div class="chip-sub">{{ b.time }}</div>
-                                <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
-                            </div>
-                            <span v-if="i < coatingBatchRows.length - 1" class="chip-arrow">→</span>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- 製膠批號紀錄 -->
-                <div v-if="rubberBatchRows.length" class="wo-batch-timeline">
-                    <span class="wo-batch-label">製膠批號<br>更新紀錄</span>
-                    <div class="batch-chips">
-                        <template v-for="(b, i) in rubberBatchRows" :key="i">
-                            <div class="batch-chip" :class="b.isLast ? 'chip-active' : 'chip-done'">
-                                <div class="chip-no">{{ b.batchNo }}</div>
-                                <div class="chip-sub">{{ b.time }}</div>
-                                <div class="chip-dur" :class="b.isLast ? 'dur-active' : ''">{{ b.duration }}</div>
-                            </div>
-                            <span v-if="i < rubberBatchRows.length - 1" class="chip-arrow">→</span>
-                        </template>
-                    </div>
-                </div>
             </div>
 
             <!-- Coating Machine 2 Tabs -->
@@ -2422,6 +2382,13 @@ const store = useWorkRecordsStore()
 
 const machineId = computed(() => route.params.machineId)
 const fromCategory = window.history.state?.fromCategory
+
+const RUBBER_IDS = ['R001', 'R011', 'R021', 'R031']
+const GLUE_IDS    = ['C001', 'C003', 'C004', 'C005']
+const COAT_IDS    = ['C002', 'C006']
+const isRubberMachine  = computed(() => RUBBER_IDS.includes(machineId.value))
+const isGlueMachine    = computed(() => GLUE_IDS.includes(machineId.value))
+const isCoatingMachine = computed(() => COAT_IDS.includes(machineId.value))
 
 const mockData = {
     R001: { name: '製膠攪拌機', location: 'C棟1F', category: '製膠', status: 'running', communicationStatus: 'normal', points: [{ name: '溫度1', value: '78.5°C', unit: '°C', status: 'normal' },{ name: '溫度2', value: '82.1°C', unit: '°C', status: 'normal' },{ name: '壓力', value: '3.2 bar', unit: 'bar', status: 'normal' },{ name: '轉速', value: '1250 rpm', unit: 'rpm', status: 'normal' },{ name: '電流', value: '45.2 A', unit: 'A', status: 'normal' },{ name: '振動', value: '0.8 mm/s', unit: 'mm/s', status: 'normal' }] },

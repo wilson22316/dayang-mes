@@ -24,7 +24,7 @@
                 <!-- 批號更新（製膠 / 調膠 / 塗佈機台才顯示） -->
                 <template v-if="isRubberMachine || isGlueMachine || isCoatingMachine">
                     <div class="wo-label" style="margin-top:8px">
-                        {{ isRubberMachine ? '製膠批號' : isGlueMachine ? '膠料批號' : '塗佈批號' }}
+                        {{ isRubberMachine ? '膠料批號' : isGlueMachine ? '膠料批號' : '塗佈批號' }}
                     </div>
                     <div class="batch-row">
                         <input
