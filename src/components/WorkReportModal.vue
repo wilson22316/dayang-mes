@@ -85,6 +85,10 @@
                             <label class="form-label">塗佈批號</label>
                             <input v-model="coatingBatchNo" class="form-input-ctrl" placeholder="輸入塗佈批號" />
                         </div>
+                        <div v-if="!machineActiveRecord" class="form-group">
+                            <label class="form-label">膠料批號</label>
+                            <input v-model="coatingGlueBatchInput" class="form-input-ctrl" placeholder="輸入膠料批號" />
+                        </div>
                         <!-- 塗佈批號更新紀錄時間軸 -->
                         <div v-if="coatingBatchRows.length" class="modal-batch-timeline">
                             <div class="timeline-section-label">塗佈批號更新紀錄</div>
@@ -332,6 +336,7 @@ const selectedWO = ref(null)
 const operator = ref('')
 const glueBatchNo = ref('')
 const coatingBatchNo = ref('')
+const coatingGlueBatchInput = ref('')
 const rubberBatchNo = ref('')
 const confirmMode = ref(null)
 const showConfirm = computed({ get: () => confirmMode.value !== null, set: (v) => { if (!v) confirmMode.value = null } })
@@ -364,12 +369,7 @@ const rubberBatchRows = computed(() => buildBatchRows(machineActiveRecord.value?
 const glueBatchRows    = computed(() => buildBatchRows(machineActiveRecord.value?.glueBatchHistory))
 const coatingBatchRows = computed(() => buildBatchRows(machineActiveRecord.value?.coatingBatchHistory))
 
-const coatingGCRecord     = computed(() => {
-    const rec = machineActiveRecord.value
-    if (!rec || !isCoatingMachine.value) return null
-    return store.glueCoatingRecords.find(r => r.workOrder === rec.workOrder) ?? null
-})
-const coatingGlueBatchRows = computed(() => buildBatchRows(coatingGCRecord.value?.glueBatchHistory))
+const coatingGlueBatchRows = computed(() => buildBatchRows(machineActiveRecord.value?.coatingGlueBatchHistory))
 
 const isBatchSame = computed(() => {
     const rec = machineActiveRecord.value
@@ -436,11 +436,21 @@ function handleStart() {
     const woName = woLabel.replace(/^WO-\S+\s*/, '')
 
     if (isCoatingMachine.value) {
+        if (coatingGlueBatchInput.value.trim()) {
+            const gcRecord = store.glueCoatingRecords.find(r => r.workOrder === selectedWO.value)
+            const history = gcRecord?.glueBatchHistory ?? []
+            if (!history.some(e => e.batchNo === coatingGlueBatchInput.value.trim())) {
+                $q.notify({ type: 'negative', message: `膠料批號「${coatingGlueBatchInput.value.trim()}」不存在於該工單中` })
+                return
+            }
+        }
         store.startCoating({
             workOrder: selectedWO.value, workOrderName: woName,
             operator: operator.value, machine: props.machine.name,
             machineId: props.machine.id, location: props.machine.location,
-            coatingBatchNo: coatingBatchNo.value || undefined, startTime: now,
+            coatingBatchNo: coatingBatchNo.value || undefined,
+            coatingGlueBatchNo: coatingGlueBatchInput.value.trim() || undefined,
+            startTime: now,
         })
     } else {
         store.addRecord({
@@ -498,7 +508,7 @@ function handleUpdateCoat() {
 }
 
 function resetForm() {
-    selectedWO.value = null; operator.value = ''; glueBatchNo.value = ''; coatingBatchNo.value = ''; rubberBatchNo.value = ''
+    selectedWO.value = null; operator.value = ''; glueBatchNo.value = ''; coatingBatchNo.value = ''; coatingGlueBatchInput.value = ''; rubberBatchNo.value = ''
 }
 </script>
 

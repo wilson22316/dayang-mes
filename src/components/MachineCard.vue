@@ -15,32 +15,35 @@
         </div>
 
         <div v-if="categoryId !== 'facility'" class="work-order-block">
-            <div v-if="machine.workOrder" class="wo-info">
+            <div v-if="machine.workOrder" class="wo-info" :class="{ 'wo-info-coating-cat': isCoatingCategory }">
                 <div class="wo-label">當前工單</div>
                 <div class="wo-value">{{ machine.workOrder }}</div>
                 <div class="wo-label" style="margin-top:8px">開工時間</div>
                 <div class="wo-value">{{ machine.startTime }}</div>
 
-                <!-- 批號更新（製膠 / 調膠 / 塗佈機台才顯示） -->
-                <template v-if="isRubberMachine || isGlueMachine || isCoatingMachine">
-                    <div class="wo-label" style="margin-top:8px">
-                        {{ isRubberMachine ? '膠料批號' : isGlueMachine ? '膠料批號' : '塗佈批號' }}
-                    </div>
+                <!-- 批號更新（製膠 / 調膠機台） -->
+                <template v-if="isRubberMachine || isGlueMachine">
+                    <div class="wo-label" style="margin-top:8px">膠料批號</div>
                     <div class="batch-row">
-                        <input
-                            v-model="batchInput"
-                            class="batch-mini-input"
-                            :placeholder="currentBatchNo || '輸入批號'"
-                        />
-                        <button
-                            class="batch-mini-btn"
-                            :disabled="!batchInput.trim() || isBatchSame"
-                            @click="updateBatch"
-                        >更新</button>
+                        <input v-model="batchInput" class="batch-mini-input" :placeholder="currentBatchNo || '輸入批號'" />
+                        <button class="batch-mini-btn" :disabled="!batchInput.trim() || isBatchSame" @click="updateBatch">更新</button>
+                    </div>
+                </template>
+                <!-- 批號更新（塗佈機台：塗佈批號 + 膠料批號） -->
+                <template v-if="isCoatingMachine">
+                    <div class="wo-label" style="margin-top:8px">塗佈批號</div>
+                    <div class="batch-row">
+                        <input v-model="batchInput" class="batch-mini-input" :placeholder="currentBatchNo || '輸入批號'" />
+                        <button class="batch-mini-btn" :disabled="!batchInput.trim() || isBatchSame" @click="updateBatch">更新</button>
+                    </div>
+                    <div class="wo-label" style="margin-top:8px">膠料批號</div>
+                    <div class="batch-row">
+                        <input v-model="coatingGlueBatchInput" class="batch-mini-input" :placeholder="currentCoatingGlueBatchNo || '輸入批號'" />
+                        <button class="batch-mini-btn" :disabled="!coatingGlueBatchInput.trim() || isCoatingGlueBatchSame" @click="updateCoatingGlueBatch">更新</button>
                     </div>
                 </template>
             </div>
-            <div v-else class="wo-empty" :class="{ 'wo-empty-tall': isRubberMachine || isGlueMachine || isCoatingMachine }">無開工工單</div>
+            <div v-else class="wo-empty" :class="{ 'wo-empty-tall': isRubberMachine || isGlueMachine, 'wo-empty-coating-cat': isCoatingCategory }">無開工工單</div>
         </div>
 
         <div class="comm-status" :class="machine.communicationStatus === 'normal' ? 'comm-ok' : 'comm-err'">
@@ -85,10 +88,12 @@ const store     = useWorkRecordsStore()
 const $q        = useQuasar()
 const showModal = ref(false)
 const batchInput = ref('')
+const coatingGlueBatchInput = ref('')
 
 const isGlueMachine    = computed(() => GLUE_IDS.includes(props.machine?.id))
 const isCoatingMachine = computed(() => COAT_IDS.includes(props.machine?.id))
 const isRubberMachine  = computed(() => RUBBER_IDS.includes(props.machine?.id))
+const isCoatingCategory = computed(() => props.categoryId === 'coating')
 
 const activeRecord = computed(() =>
     store.activeRecords.find(r => r.machineId === props.machine.id)
@@ -101,12 +106,20 @@ const currentBatchNo = computed(() => {
     return ''
 })
 
+const currentCoatingGlueBatchNo = computed(() =>
+    isCoatingMachine.value ? (activeRecord.value?.coatingGlueBatchNo ?? '') : ''
+)
+
 const isBatchSame = computed(() =>
     batchInput.value.trim() === currentBatchNo.value.trim() && currentBatchNo.value !== ''
 )
 
+const isCoatingGlueBatchSame = computed(() =>
+    coatingGlueBatchInput.value.trim() === currentCoatingGlueBatchNo.value.trim() && currentCoatingGlueBatchNo.value !== ''
+)
+
 // 當工單切換時重設輸入欄
-watch(() => props.machine.workOrder, () => { batchInput.value = '' })
+watch(() => props.machine.workOrder, () => { batchInput.value = ''; coatingGlueBatchInput.value = '' })
 
 function updateBatch() {
     const wo = activeRecord.value?.workOrder
@@ -120,6 +133,22 @@ function updateBatch() {
     }
     $q.notify({ type: 'positive', message: '批號已更新' })
     batchInput.value = ''
+}
+
+function updateCoatingGlueBatch() {
+    const wo = activeRecord.value?.workOrder
+    if (!wo) return
+    const inputBatch = coatingGlueBatchInput.value.trim()
+    const gcRecord = store.glueCoatingRecords.find((r) => r.workOrder === wo)
+    const history = gcRecord?.glueBatchHistory ?? []
+    const exists = history.some((e) => e.batchNo === inputBatch)
+    if (!exists) {
+        $q.notify({ type: 'negative', message: `膠料批號「${inputBatch}」不存在於該工單中` })
+        return
+    }
+    store.updateCoatingGlueBatch(wo, inputBatch)
+    $q.notify({ type: 'positive', message: '批號已更新' })
+    coatingGlueBatchInput.value = ''
 }
 
 const statusMap = {
@@ -142,7 +171,7 @@ function goDetail() {
 .card:hover { border-color: color-mix(in srgb, var(--c-primary) 50%, transparent); }
 .card-header { margin-bottom: 12px; }
 .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.machine-name { margin: 0 !important; font-size: 15px; font-weight: 500; color: var(--c-card-fg); line-height: 1.2; }
+.machine-name { margin: 0 !important; font-size: 16px; font-weight: 500; color: var(--c-card-fg); line-height: 1.2; }
 .status-pill { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; color: #fff; line-height: 1.2; }
 .bg-green { background-color: #00c951 !important; }
 .bg-yellow { background-color: #EEB000 !important; }
@@ -151,12 +180,14 @@ function goDetail() {
 .work-order-block { margin-bottom: 12px; }
 .wo-info {
     background-color: var(--c-wo-bg); border-radius: var(--radius); padding: 12px;
-    min-height: 104px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;
+    min-height: 104px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-start;
 }
 .wo-label { font-size: 12px; color: var(--c-muted-fg); margin-bottom: 2px; }
 .wo-value { font-size: 14px; color: var(--c-card-fg); font-weight: 500; }
 .wo-empty { background-color: var(--c-wo-bg); border-radius: var(--radius); padding: 12px; min-height: 104px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--c-muted-fg); }
 .wo-empty-tall { min-height: 172px; }
+.wo-info-coating-cat { min-height: 240px; }
+.wo-empty-coating-cat { min-height: 240px; }
 /* 批號更新列 */
 .batch-row { display: flex; gap: 6px; margin-top: 2px; }
 .batch-mini-input {

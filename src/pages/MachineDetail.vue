@@ -30,6 +30,7 @@
                 <div v-if="isRubberMachine" class="wo-col"><div class="wo-label">塗佈批號</div><div class="wo-val">{{ activeRecord?.rubberBatchNo ?? '-' }}</div></div>
                 <div v-if="isGlueMachine" class="wo-col"><div class="wo-label">膠料批號</div><div class="wo-val">{{ activeRecord?.glueBatchNo ?? '-' }}</div></div>
                 <div v-if="isCoatingMachine" class="wo-col"><div class="wo-label">塗佈批號</div><div class="wo-val">{{ activeRecord?.coatingBatchNo ?? '-' }}</div></div>
+                <div v-if="isCoatingMachine" class="wo-col"><div class="wo-label">膠料批號</div><div class="wo-val">{{ activeRecord?.coatingGlueBatchNo ?? '-' }}</div></div>
 
 
             </div>

@@ -16,6 +16,7 @@ import { ref, computed } from 'vue'
  *   coatingOperator?: string, coatingStartTime?: string, coatingEndTime?: string,
  *   coatingMachine?: string, coatingMachineId?: string, coatingLocation?: string,
  *   coatingBatchNo?: string, coatingBatchHistory?: BatchEntry[],
+ *   coatingGlueBatchNo?: string, coatingGlueBatchHistory?: BatchEntry[],
  * }} GlueCoatingRecord
  *
  * @typedef {{
@@ -82,7 +83,9 @@ export const useWorkRecordsStore = defineStore('workRecords', () => {
                     machine: r.coatingMachine ?? r.glueMachine, machineId: r.coatingMachineId ?? r.glueMachineId,
                     location: r.coatingLocation ?? r.glueLocation, category: '塗佈',
                     operator: r.coatingOperator ?? r.glueOperator, startTime: r.coatingStartTime ?? r.glueStartTime,
-                    status: '進行中', coatingBatchNo: r.coatingBatchNo, coatingBatchHistory: r.coatingBatchHistory,
+                    status: '進行中',
+                    coatingBatchNo: r.coatingBatchNo, coatingBatchHistory: r.coatingBatchHistory,
+                    coatingGlueBatchNo: r.coatingGlueBatchNo, coatingGlueBatchHistory: r.coatingGlueBatchHistory,
                 })
             }
         }
@@ -106,7 +109,7 @@ export const useWorkRecordsStore = defineStore('workRecords', () => {
         }
     }
 
-    function startCoating({ workOrder, workOrderName, operator, machine, machineId, location, coatingBatchNo, startTime }) {
+    function startCoating({ workOrder, workOrderName, operator, machine, machineId, location, coatingBatchNo, coatingGlueBatchNo, startTime }) {
         const idx = glueCoatingRecords.value.findIndex((r) => r.workOrder === workOrder)
         if (idx === -1) return
         const r = { ...glueCoatingRecords.value[idx] }
@@ -121,6 +124,7 @@ export const useWorkRecordsStore = defineStore('workRecords', () => {
             coatingOperator: operator, coatingStartTime: startTime,
             coatingMachine: machine, coatingMachineId: machineId, coatingLocation: location,
             coatingBatchNo, coatingBatchHistory: coatingBatchNo ? [{ batchNo: coatingBatchNo, time: startTime }] : [],
+            coatingGlueBatchNo, coatingGlueBatchHistory: coatingGlueBatchNo ? [{ batchNo: coatingGlueBatchNo, time: startTime }] : [],
         })
         glueCoatingRecords.value.splice(idx, 1, r)
     }
@@ -183,6 +187,16 @@ export const useWorkRecordsStore = defineStore('workRecords', () => {
         glueCoatingRecords.value.splice(idx, 1, r)
     }
 
+    function updateCoatingGlueBatch(workOrder, batchNo) {
+        const now = nowString()
+        const idx = glueCoatingRecords.value.findIndex((r) => r.workOrder === workOrder)
+        if (idx === -1) return
+        const r = { ...glueCoatingRecords.value[idx] }
+        r.coatingGlueBatchNo = batchNo
+        r.coatingGlueBatchHistory = [...(r.coatingGlueBatchHistory ?? []), { batchNo, time: now }]
+        glueCoatingRecords.value.splice(idx, 1, r)
+    }
+
     function updateRubberBatch(workOrder, batchNo) {
         const now = nowString()
         const idx = records.value.findIndex((r) => r.workOrder === workOrder && r.status === '進行中')
@@ -198,6 +212,6 @@ export const useWorkRecordsStore = defineStore('workRecords', () => {
         activeRecords, completedRecords,
         addRecord, startCoating, completeRecord,
         completeGlueStage, completeCoatingStage, completeByWorkOrder,
-        updateGlueBatch, updateCoatingBatch, updateRubberBatch,
+        updateGlueBatch, updateCoatingBatch, updateCoatingGlueBatch, updateRubberBatch,
     }
 })
