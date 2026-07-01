@@ -51,11 +51,11 @@ const tab = ref(initialTab)
 
 const categories = [
     { id: 'rubber', name: '製膠' },
+    { id: 'lamination', name: '淋膜' },
     { id: 'facility', name: '廠務' },
     { id: 'coating', name: '塗佈' },
     { id: 'processing', name: '本業加工' },
     { id: 'cover', name: 'COVER加工' },
-    { id: 'lamination', name: '淋膜' },
 ]
 
 const machines = {
